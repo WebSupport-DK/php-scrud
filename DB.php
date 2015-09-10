@@ -1,6 +1,6 @@
 <?php
 
-namespace thom855j\php_sql;
+namespace thom855j\PHPSql;
 
 use PDO;
 
@@ -74,13 +74,17 @@ class DB
 
         if (isset($prepare))
         {
-
-            $x = 1;
+            $data_type = 2;
+            $x         = 1;
             if (count($params))
             {
                 foreach ($params as $param)
                 {
-                    $this->_query->bindValue($x, $param);
+                    if (is_numeric($param))
+                    {
+                        $data_type = 1;
+                    }
+                    $this->_query->bindValue($x, $param, $data_type);
                     $x++;
                 }
             }
@@ -259,7 +263,7 @@ class DB
             function alter($table, $column, $info)
     {
         $sql = "ALTER TABLE ? ADD ? ?";
-        return $this->query($sql, array($table,$column,$info));
+        return $this->query($sql, array($table, $column, $info));
     }
 
     public
