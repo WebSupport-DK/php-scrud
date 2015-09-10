@@ -1,0 +1,8 @@
+{
+        "name": "thom855j/php-sql",
+        "license": "MIT",
+        "description": "Simple DB class for using PDO in php",
+        "require": {
+        "php": ">=5.4.0"
+        }
+}
