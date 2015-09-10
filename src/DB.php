@@ -1,6 +1,6 @@
 <?php
 
-namespace thom855j\PHPSql;
+namespace thom855j\PHPScrud;
 
 use PDO;
 
