@@ -2,6 +2,7 @@
         "name": "thom855j/php-sql",
         "license": "MIT",
         "description": "Simple DB class for using PDO in php",
+        "minimum-stability": "dev-master",
         "require": {
         "php": ">=5.4.0"
         }
