@@ -5,5 +5,10 @@
         "description": "Simple DB class for using PDO in php",
         "require": {
         "php": ">=5.4.0"
+        },
+    "autoload": {
+        "psr-4": {
+            "thom855j\\php_sql\\": ""
+            }
         }
 }
