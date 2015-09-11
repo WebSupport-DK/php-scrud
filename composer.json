@@ -2,7 +2,7 @@
         "name": "thom855j/php-scrud",
         "version": "dev-master",
         "license": "MIT",
-        "description": "Simple DB class for using PDO in php",
+        "description": "Simple scrud classes for using PDO and more in php",
         "require": {
         "php": ">=5.4.0"
         },
