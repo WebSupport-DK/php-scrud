@@ -1,5 +1,5 @@
 {
-        "name": "thom855j/php-sql",
+        "name": "thom855j/php-scrud",
         "version": "dev-master",
         "license": "MIT",
         "description": "Simple DB class for using PDO in php",
@@ -8,7 +8,7 @@
         },
     "autoload": {
         "psr-4": {
-            "thom855j\\PHPSql\\": "src/"
+            "thom855j\\PHPScrud\\": "src/"
             }
         }
 }
