@@ -22,6 +22,9 @@ class DB
             $_results,
             $_first,
             $_count              = 0;
+            $_total,
+            $_perPage,
+            $_pages;
 
     public
             function __construct($type, $server, $database, $user, $password)
@@ -165,6 +168,26 @@ class DB
     {
         return $this->action('SELECT ' . implode($select, ', '), $table, $where, $options);
     }
+    
+    public
+            function paging($start, $end, $max,$where =array(array()))
+    {
+
+        $page          = isset($start) ? (int) $start : 1;
+        $this->_perPage = isset($end) && $end <= $max ? (int) $end : 5;
+
+        $this->_pages = ($page > 1) ? ($page * $this->_perPage ) - $this->_perPage : 0;
+
+        $this->_total = (ceil($this->countRecords($where)[0]->Total / $this->_perPage));
+    }
+    
+    public
+            function countRecords($table,$where = array(array()))
+    {
+        $this->select(array("count(*) AS Total"), $table, $where);
+        return $this->results();
+    }
+
 
     public
             function search($table, $rows, $searchQuery, $searchTerms = array(), $options = null)
