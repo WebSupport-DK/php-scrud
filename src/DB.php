@@ -178,13 +178,13 @@ class DB
 
         $this->_pages = ($page > 1) ? ($page * $this->_perPage ) - $this->_perPage : 0;
 
-        $this->_total = (ceil($this->countRecords($where)[0]->Total / $this->_perPage));
+        $this->_total = (ceil($this->countRecords($where)[0] / $this->_perPage));
     }
     
     public
             function countRecords($table,$where = array(array()))
     {
-        $this->select(array("count(*) AS Total"), $table, $where);
+        $this->select(array("count(*)"), $table, $where);
         return $this->results();
     }
 
