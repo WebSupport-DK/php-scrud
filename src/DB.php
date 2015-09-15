@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * Class for managing the database connection
+ * 
+ * @original_author Alex Garret
+ * @link https://www.youtube.com/playlist?list=PLfdtiltiRHWF5Rhuk7k4UAU1_yLAZzhWc Tutorial videos from Alex Garret (Code Course)
+ * @author Thomas Elvin <thom855j@cvkweb.dk>
+ */
+ 
 namespace thom855j\PHPScrud;
 
 use PDO;
