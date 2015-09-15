@@ -1,6 +1,5 @@
 {
         "name": "thom855j/php-scrud",
-        "version": "dev-master",
         "license": "MIT",
         "description": "Simple scrud classes for using PDO and more in php",
         "require": {
