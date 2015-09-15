@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class for managing the database connection
  * 
@@ -6,7 +7,7 @@
  * @link https://www.youtube.com/playlist?list=PLfdtiltiRHWF5Rhuk7k4UAU1_yLAZzhWc Tutorial videos from Alex Garret (Code Course)
  * @author Thomas Elvin <thom855j@cvkweb.dk>
  */
- 
+
 namespace thom855j\PHPScrud;
 
 use PDO;
@@ -28,8 +29,8 @@ class DB
             $_error              = false,
             $_results,
             $_first,
-            $_count              = 0;
-            $_total,
+            $_count              = 0,
+            $_records,
             $_perPage,
             $_pages;
 
@@ -79,6 +80,7 @@ class DB
     public
             function query($sql, $params = array())
     {
+     
         $this->_error = false;
         $prepare      = $this->_query = $this->_pdo->prepare($sql);
 
@@ -134,7 +136,7 @@ class DB
             {
                 if (count($clause) === 3)
                 {
-                    $operators = array('=', '>', '<', ' >=', '<=');
+                    $operators = array('=', '>', '<', ' >=', '<=', '<>');
 
                     if (isset($clause))
                     {
@@ -150,7 +152,6 @@ class DB
                         $sql .= " AND ";
                     }
                 }
-                //var_dump($sql);
             }
             $sql = rtrim($sql, " AND ");
         }
@@ -171,61 +172,63 @@ class DB
     }
 
     public
-            function select($select = array(), $table, $where = array(), $options = array())
+            function select($select = array(), $table, $paging = array(), $where = array(), $options = array())
     {
-        return $this->action('SELECT ' . implode($select, ', '), $table, $where, $options);
+        if (empty($paging))
+        {
+            return $this->action('SELECT ' . implode($select, ', '), $table, $where, $options);
+        }
+        else
+        {
+            $this->paging($table, $paging, $where);
+            $options = array_merge($options, array('LIMIT' => "$this->_pages,$this->_perPage"));
+            return $this->action('SELECT ' . implode($select, ', '), $table, $where, $options);
+        }
     }
-    
-    public
-            function paging($start, $end, $max,$where =array(array()))
-    {
 
-        $page          = isset($start) ? (int) $start : 1;
-        $this->_perPage = isset($end) && $end <= $max ? (int) $end : 5;
+    private
+            function paging($table, $limit = array(), $where = array(array()))
+    {
+        $page           = isset($limit['start']) ? (int) $limit['start'] : 1;
+        $this->_perPage = isset($limit['end']) && $limit['end'] <= $limit['max'] ? (int) $limit['end'] : 5;
 
         $this->_pages = ($page > 1) ? ($page * $this->_perPage ) - $this->_perPage : 0;
 
-        $this->_total = (ceil($this->countRecords($where)[0] / $this->_perPage));
-    }
-    
-    public
-            function countRecords($table,$where = array(array()))
-    {
-        $this->select(array("count(*)"), $table, $where);
-        return $this->results();
+        $this->_records = (ceil($this->getRecords($table, $where)[0]->records / $this->_perPage));
     }
 
-
     public
-            function search($table, $rows, $searchQuery, $searchTerms = array(), $options = null)
+            function search($table, $attributes = array(), $searchQuery, $options = null)
     {
 
-
-        if (!empty($searchQuery) && !empty($searchTerms))
+        if (!empty($searchQuery) && !empty($attributes))
         {
-            $z = 1;
-            for ($x = 0; $x < $searchTerms; $x++)
+
+            $query = "";
+
+            foreach ($attributes as $term)
             {
-                for ($y = 0; $y < count($searchQuery); $y++)
+                foreach ($searchQuery as $search)
                 {
-                    $this->_query->bindValue($z++, $searchQuery[$y]);
+                    $query .= "{$term} LIKE ? OR ";
                 }
-            }
-        }
-
-        $query = "";
-        if (isset($searchQuery))
-        {
-            foreach ($searchTerms as $term)
-            {
-                $query .= "{$term} LIKE '%{$searchQuery}%' OR ";
             }
 
             $search = trim($query, "OR ");
 
-            $sql = "SELECT {$rows} FROM {$table} WHERE {$search}";
+            $sql = "SELECT " . implode($attributes, ', ') . " FROM {$table} WHERE {$search}";
 
-            if (!$this->query($sql)->error())
+            $z = 1;
+
+            for ($x = 0; $x < count($attributes); $x++)
+            {
+                for ($y = 0; $y < count($searchQuery); $y++)
+                {
+                    $params[$z++] = $searchQuery[$y];
+                }
+            }
+          
+            if (!$this->query($sql, $params)->error())
             {
                 return (object) $this;
             }
@@ -265,7 +268,7 @@ class DB
     }
 
     public
-            function update($table, $column_ID, $ID, $fields = array())
+            function update($table, $attribute, $ID, $fields = array())
     {
         $set = '';
         $x   = 1;
@@ -280,7 +283,7 @@ class DB
             $x++;
         }
 
-        $sql = "UPDATE {$table} SET {$set} WHERE {$column_ID} = {$ID}";
+        $sql = "UPDATE {$table} SET {$set} WHERE {$attribute} = {$ID}";
 
         if (!$this->query($sql, $fields)->error())
         {
@@ -313,6 +316,13 @@ class DB
             function error()
     {
         return $this->_error;
+    }
+
+    public
+            function getRecords($table, $where = array(array()))
+    {
+        $this->select(array("count(*) AS records"), $table, null, $where);
+        return $this->results();
     }
 
     public
