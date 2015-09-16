@@ -78,9 +78,19 @@ class DB
     }
 
     public
-            function query($sql, $params = array())
+            function query($sql, $params = array(), $table = '', $paging = array())
     {
-     
+
+
+        if (!empty($paging))
+        {
+
+            $this->paging($table, $paging);
+            $sql .= " LIMIT $this->_pages,$this->_perPage";
+            $this->query($sql, $params);
+        }
+
+
         $this->_error = false;
         $prepare      = $this->_query = $this->_pdo->prepare($sql);
 
@@ -187,14 +197,14 @@ class DB
     }
 
     private
-            function paging($table, $limit = array(), $where = array(array()))
+            function paging($table, $limit = array(), $where = array())
     {
         $page           = isset($limit['start']) ? (int) $limit['start'] : 1;
         $this->_perPage = isset($limit['end']) && $limit['end'] <= $limit['max'] ? (int) $limit['end'] : 5;
 
-        $this->_pages = ($page > 1) ? ($page * $this->_perPage ) - $this->_perPage : 0;
-
-        $this->_records = (ceil($this->getRecords($table, $where)[0]->records / $this->_perPage));
+        $this->_pages   = ($page > 1) ? ($page * $this->_perPage ) - $this->_perPage : 0;
+        $this->getRecords($table, $where);
+        $this->_records = (ceil($this->_records[0] / $this->_perPage));
     }
 
     public
@@ -227,7 +237,7 @@ class DB
                     $params[$z++] = $searchQuery[$y];
                 }
             }
-          
+
             if (!$this->query($sql, $params)->error())
             {
                 return (object) $this;
@@ -319,10 +329,10 @@ class DB
     }
 
     public
-            function getRecords($table, $where = array(array()))
+            function getRecords($table, $where =array())
     {
         $this->select(array("count(*) AS records"), $table, null, $where);
-        return $this->results();
+        return $this->_records = $this->results()[0]->records;
     }
 
     public
