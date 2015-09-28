@@ -8,7 +8,7 @@
  * @author Thomas Elvin <thom855j@cvkweb.dk>
  */
 
-namespace thom855j\PHPScrud;
+namespace WebSupportDK\PHPScrud;
 
 use PDO;
 
