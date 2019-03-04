@@ -4,38 +4,39 @@
  * Class for managing the database connection
  * 
  * @original_author Alex Garret
- * @link https://www.youtube.com/playlist?list=PLfdtiltiRHWF5Rhuk7k4UAU1_yLAZzhWc Tutorial videos from Alex Garret (Code Course)
+ * @link https://www.youtube.com/playlist?list=PLfdtiltiRHWF5Rhuk7k4UAU1_yLAZzhWc 
+ * Tutorial videos from Alex Garret (Code Course)
  * @author Thomas Elvin <thom855j@cvkweb.dk>
  */
 
-namespace WebSupportDK\PHPScrud;
+namespace App\PHPScrud;
 
 use PDO;
 
 class DB
 {
 
-    protected static
-            $_instance = null;
+    protected static $_instance = null;
+
     private
             $type,
             $server,
             $database,
             $user,
             $password;
+
     public
             $_pdo,
             $_query,
-            $_error              = false,
+            $_error = false,
             $_results,
             $_first,
-            $_count              = 0,
+            $_count = 0,
             $_records,
             $_perPage,
             $_pages;
 
-    public
-            function __construct($type, $server, $database, $user, $password)
+    public function __construct($type, $server, $database, $user, $password)
     {
         $this->type     = $type;
         $this->server   = $server;
@@ -45,7 +46,14 @@ class DB
 
         try
         {
-            $this->_pdo = new PDO($this->type . ':host=' . $this->server . ';dbname=' . $this->database, $this->user, $this->password);
+            $this->_pdo = new PDO(
+                $this->type . ':host=' . 
+                $this->server . ';dbname=' . 
+                $this->database, 
+                $this->user, 
+                $this->password
+            );
+
             $this->_pdo->exec('set names utf8');
         }
         catch (PDOException $e)
@@ -54,8 +62,7 @@ class DB
         }
     }
 
-    public static
-            function load($type = null, $server = null, $database = null, $user = null, $password = null)
+    public static function load($type = null, $server = null, $database = null, $user = null, $password = null)
     {
         if (!isset(self::$_instance))
         {
@@ -64,23 +71,19 @@ class DB
         return self::$_instance;
     }
 
-    public
-            function setPDO($name, $value)
+    public function setPDO($name, $value)
     {
         $this->$name = $value;
     }
 
-    public
-            function lastInsertId()
+    public function lastInsertId()
     {
         // Return last inserted ID from DB 
         return $this->_pdo->lastInsertId();
     }
 
-    public
-            function query($sql, $params = array(), $table = '', $paging = array())
+    public function query($sql, $params = array(), $table = '', $paging = array())
     {
-
 
         if (!empty($paging))
         {
@@ -89,7 +92,6 @@ class DB
             $sql .= " LIMIT $this->_pages,$this->_perPage";
             $this->query($sql, $params);
         }
-
 
         $this->_error = false;
         $prepare      = $this->_query = $this->_pdo->prepare($sql);
@@ -133,8 +135,7 @@ class DB
      * @param array $options Array with miscellaneous satements like ORDER BY
      * @return boolean|object
      */
-    public
-            function action($action, $table, $where = array(), $options = array())
+    public function action($action, $table, $where = array(), $options = array())
     {
         $sql   = "{$action} FROM {$table}";
         $value = array();
@@ -181,8 +182,7 @@ class DB
         return false;
     }
 
-    public
-            function select($select = array(), $table, $paging = array(), $where = array(), $options = array())
+    public function select($select = array(), $table, $paging = array(), $where = array(), $options = array())
     {
         if (empty($paging))
         {
@@ -196,8 +196,7 @@ class DB
         }
     }
 
-    private
-            function paging($table, $limit = array(), $where = array())
+    private function paging($table, $limit = array(), $where = array())
     {
         $page           = isset($limit['start']) ? (int) $limit['start'] : 1;
         $this->_perPage = isset($limit['end']) && $limit['end'] <= $limit['max'] ? (int) $limit['end'] : 5;
@@ -207,8 +206,7 @@ class DB
         $this->_records = (ceil($this->_records[0] / $this->_perPage));
     }
 
-    public
-            function search($table, $attributes = array(), $searchQuery, $options = null)
+    public function search($table, $attributes = array(), $searchQuery, $options = null)
     {
 
         if (!empty($searchQuery) && !empty($attributes))
@@ -245,8 +243,7 @@ class DB
         }
     }
 
-    public
-            function insert($table, $fields = array())
+    public function insert($table, $fields = array())
     {
         $keys   = array_keys($fields);
         $values = '';
@@ -271,14 +268,12 @@ class DB
         return false;
     }
 
-    public
-            function delete($table, $where = array())
+    public function delete($table, $where = array())
     {
         return $this->action('DELETE', $table, $where);
     }
 
-    public
-            function update($table, $attribute, $ID, $fields = array())
+    public function update($table, $attribute, $ID, $fields = array())
     {
         $set = '';
         $x   = 1;
@@ -302,43 +297,36 @@ class DB
         return false;
     }
 
-    public
-            function alter($table, $column, $info)
+    public function alter($table, $column, $info)
     {
         $sql = "ALTER TABLE ? ADD ? ?";
         return $this->query($sql, array($table, $column, $info));
     }
 
-    public
-            function results()
+    public function results()
     {
         return $this->_results;
     }
 
-    public
-            function first()
+    public function first()
     {
         $this->_first = $this->results();
         return $this->_first[0];
     }
 
-    public
-            function error()
+    public function error()
     {
         return $this->_error;
     }
 
-    public
-            function getRecords($table, $where =array())
+    public function getRecords($table, $where =array())
     {
         $this->select(array("count(*) AS records"), $table, null, $where);
         return $this->_records = $this->results()[0]->records;
     }
 
-    public
-            function count()
+    public function count()
     {
         return $this->_count;
     }
-
 }
