@@ -1,13 +1,13 @@
 {
-        "name": "datalaere/php-scrud",
-        "license": "MIT",
-        "description": "Simple scrud classes for using PDO and more in php",
-        "require": {
+    "name": "datalaere/php-scrud",
+    "license": "MIT",
+    "description": "Simple scrud classes for using PDO and more in php",
+    "require": {
         "php": ">=5.5.0"
-        },
+    },
     "autoload": {
         "psr-4": {
             "Datalaere\\PHPScrud\\": "src/"
-            }
         }
+    }
 }
