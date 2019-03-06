@@ -9,7 +9,7 @@
  * @author Thomas Elvin <thom855j@cvkweb.dk>
  */
 
-namespace App\PHPScrud;
+namespace Datalaere\PHPScrud;
 
 use PDO;
 
@@ -44,8 +44,7 @@ class DB
         $this->user     = $user;
         $this->password = $password;
 
-        try
-        {
+        try {
             $this->_pdo = new PDO(
                 $this->type . ':host=' . 
                 $this->server . ';dbname=' . 
@@ -54,20 +53,19 @@ class DB
                 $this->password
             );
 
-            $this->_pdo->exec('set names utf8');
-        }
-        catch (PDOException $e)
-        {
+        $this->_pdo->exec('set names utf8');
+
+        } catch (PDOException $e) {
             die($e->getMessage());
         }
     }
 
     public static function load($type = null, $server = null, $database = null, $user = null, $password = null)
     {
-        if (!isset(self::$_instance))
-        {
+        if (!isset(self::$_instance)) {
             self::$_instance = new DB($type, $server, $database, $user, $password);
         }
+
         return self::$_instance;
     }
 
@@ -85,41 +83,37 @@ class DB
     public function query($sql, $params = array(), $table = '', $paging = array())
     {
 
-        if (!empty($paging))
-        {
-
+        if (!empty($paging)) {
             $this->paging($table, $paging);
             $sql .= " LIMIT $this->_pages,$this->_perPage";
             $this->query($sql, $params);
         }
 
         $this->_error = false;
-        $prepare      = $this->_query = $this->_pdo->prepare($sql);
 
-        if (isset($prepare))
-        {
+        $prepare = $this->_query = $this->_pdo->prepare($sql);
+
+        if (isset($prepare)) {
+
             $data_type = 2;
             $x         = 1;
-            if (count($params))
-            {
-                foreach ($params as $param)
-                {
-                    if (is_numeric($param))
-                    {
+
+            if (count($params)) {
+                foreach ($params as $param) {
+
+                    if (is_numeric($param)) {
                         $data_type = 1;
                     }
+
                     $this->_query->bindValue($x, $param, $data_type);
                     $x++;
                 }
             }
 
-            if ($this->_query->execute())
-            {
+            if ($this->_query->execute()) {
                 $this->_results = $this->_query->fetchAll(PDO::FETCH_OBJ);
                 $this->_count   = $this->_query->rowCount();
-            }
-            else
-            {
+            } else {
                 $this->_error = true;
             }
         }
@@ -140,25 +134,23 @@ class DB
         $sql   = "{$action} FROM {$table}";
         $value = array();
 
-        if (!empty($where))
-        {
+        if (!empty($where)) {
+
             $sql .= " WHERE ";
-            foreach ($where as $clause)
-            {
-                if (count($clause) === 3)
-                {
+
+            foreach ($where as $clause) {
+                if (count($clause) === 3) {
+
                     $operators = array('=', '>', '<', ' >=', '<=', '<>');
 
-                    if (isset($clause))
-                    {
+                    if (isset($clause)) {
                         $field     = $clause[0];
                         $operator  = $clause[1];
                         $value[]   = $clause[2];
                         $bindValue = '?';
                     }
 
-                    if (in_array($operator, $operators))
-                    {
+                    if (in_array($operator, $operators)) {
                         $sql .= "{$field} {$operator} {$bindValue}";
                         $sql .= " AND ";
                     }
@@ -167,29 +159,24 @@ class DB
             $sql = rtrim($sql, " AND ");
         }
 
-        if (!empty($options))
-        {
-            foreach ($options as $optionKey => $optionValue)
-            {
+        if (!empty($options)) {
+            foreach ($options as $optionKey => $optionValue) {
                 $sql .= " {$optionKey} {$optionValue}";
             }
         }
 
-        if (!$this->query($sql, $value)->error())
-        {
+        if (!$this->query($sql, $value)->error()) {
             return (object) $this;
         }
+
         return false;
     }
 
     public function select($select = array(), $table, $paging = array(), $where = array(), $options = array())
     {
-        if (empty($paging))
-        {
+        if (empty($paging)) {
             return $this->action('SELECT ' . implode($select, ', '), $table, $where, $options);
-        }
-        else
-        {
+        } else {
             $this->paging($table, $paging, $where);
             $options = array_merge($options, array('LIMIT' => "$this->_pages,$this->_perPage"));
             return $this->action('SELECT ' . implode($select, ', '), $table, $where, $options);
@@ -209,23 +196,18 @@ class DB
     public function search($table, $attributes = array(), $searchQuery, $options = null)
     {
 
-        if (!empty($searchQuery) && !empty($attributes))
-        {
+        if (!empty($searchQuery) && !empty($attributes)) {
 
             $query = "";
 
-            foreach ($attributes as $term)
-            {
-                foreach ($searchQuery as $search)
-                {
+            foreach ($attributes as $term) {
+                foreach ($searchQuery as $search) {
                     $query .= "{$term} LIKE ? OR ";
                 }
             }
 
             $search = trim($query, "OR ");
-
             $sql = "SELECT " . implode($attributes, ', ') . " FROM {$table} WHERE {$search}";
-
             $z = 1;
 
             for ($x = 0; $x < count($attributes); $x++)
