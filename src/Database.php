@@ -21,7 +21,7 @@ class Database
 
     private
             $type,
-            $server,
+            $host,
             $database,
             $user,
             $password;
@@ -37,10 +37,10 @@ class Database
             $perPage,
             $pages;
 
-    public function __construct($type, $server, $database, $user, $password)
+    public function __construct($type, $host, $database, $user, $password)
     {
         $this->type     = $type;
-        $this->server   = $server;
+        $this->host   = $host;
         $this->database = $database;
         $this->user     = $user;
         $this->password = $password;
@@ -48,7 +48,7 @@ class Database
         try {
             $this->pdo = new PDO(
                 $this->type . ':host=' . 
-                $this->server . ';dbname=' . 
+                $this->host . ';dbname=' . 
                 $this->database, 
                 $this->user, 
                 $this->password
@@ -61,10 +61,10 @@ class Database
         }
     }
 
-    public static function singleton($type = null, $server = null, $database = null, $user = null, $password = null)
+    public static function singleton($type = null, $host = null, $database = null, $user = null, $password = null)
     {
         if (!isset(self::$instance)) {
-            self::$instance = new Database($type, $server, $database, $user, $password);
+            self::$instance = new Database($type, $host, $database, $user, $password);
         }
 
         return self::$instance;
