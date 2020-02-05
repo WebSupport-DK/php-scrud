@@ -12,6 +12,7 @@
 namespace PHP\Crud;
 
 use PDO;
+use PDOException;
 
 class Database
 {
@@ -63,7 +64,7 @@ class Database
     public static function singleton($type = null, $server = null, $database = null, $user = null, $password = null)
     {
         if (!isset(self::$instance)) {
-            self::$instance = new DB($type, $server, $database, $user, $password);
+            self::$instance = new Database($type, $server, $database, $user, $password);
         }
 
         return self::$instance;
@@ -101,7 +102,7 @@ class Database
             if (count($params)) {
                 foreach ($params as $param) {
 
-                    if (isnumeric($param)) {
+                    if (is_numeric($param)) {
                         $datatype = 1;
                     }
 
@@ -111,7 +112,7 @@ class Database
             }
 
             if ($this->query->execute()) {
-                $this->results = $this->query->fetchAll(PDO::FETCHOBJ);
+                $this->results = $this->query->fetchAll(PDO::FETCH_OBJ);
                 $this->count   = $this->query->rowCount();
             } else {
                 $this->error = true;
@@ -150,7 +151,7 @@ class Database
                         $bindValue = '?';
                     }
 
-                    if (inarray($operator, $operators)) {
+                    if (in_array($operator, $operators)) {
                         $sql .= "{$field} {$operator} {$bindValue}";
                         $sql .= " AND ";
                     }
@@ -178,7 +179,7 @@ class Database
             return $this->action('SELECT ' . implode($select, ', '), $table, $where, $options);
         } else {
             $this->paging($table, $paging, $where);
-            $options = arraymerge($options, array('LIMIT' => "$this->pages,$this->perPage"));
+            $options = array_merge($options, array('LIMIT' => "$this->pages,$this->perPage"));
             return $this->action('SELECT ' . implode($select, ', '), $table, $where, $options);
         }
     }
@@ -227,7 +228,7 @@ class Database
 
     public function insert($table, $fields = array())
     {
-        $keys   = arraykeys($fields);
+        $keys   = array_keys($fields);
         $values = '';
         $x      = 1;
 
