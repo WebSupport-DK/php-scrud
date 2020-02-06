@@ -20,10 +20,10 @@ class Database
     protected static $instance = null;
 
     private
-            $type,
+            $driver,
             $host,
             $database,
-            $user,
+            $username,
             $password;
 
     public
@@ -37,34 +37,34 @@ class Database
             $perPage,
             $pages;
 
-    public function __construct($type, $host, $database, $user, $password)
+    public function __construct($connection = array())
     {
-        $this->type     = $type;
-        $this->host   = $host;
-        $this->database = $database;
-        $this->user     = $user;
-        $this->password = $password;
+        $this->driver     = $connection['driver'];
+        $this->host   = $connection['host'];
+        $this->database = $connection['database'];
+        $this->username     = $connection['username'];
+        $this->password = $connection['password'];
 
         try {
             $this->pdo = new PDO(
-                $this->type . ':host=' . 
+                $this->driver . ':host=' . 
                 $this->host . ';dbname=' . 
                 $this->database, 
-                $this->user, 
+                $this->username, 
                 $this->password
             );
 
-        $this->pdo->exec('set names utf8');
+        $this->pdo->exec('set names ' . $connection['charset']);
 
         } catch (PDOException $e) {
             die($e->getMessage());
         }
     }
 
-    public static function singleton($type = null, $host = null, $database = null, $user = null, $password = null)
+    public static function singleton($connection = array())
     {
         if (!isset(self::$instance)) {
-            self::$instance = new Database($type, $host, $database, $user, $password);
+            self::$instance = new Database($connection = array());
         }
 
         return self::$instance;
