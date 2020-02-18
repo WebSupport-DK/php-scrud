@@ -9,7 +9,7 @@
  * @author Thomas Elvin <thom855j@cvkweb.dk>
  */
 
-namespace PHP\Crud;
+namespace PHP\CRUD;
 
 use PDO;
 use PDOException;
