@@ -1,2 +1,5 @@
-# PHP sql
-Classes usefuld for manipulating sql with PDO.
+# PHP CRUD
+
+Classes usefuld for manipulating MySQL database with PDO.
+
+! FOR LEARNING/DEVLOPMENT PURPOSES ONLY !
