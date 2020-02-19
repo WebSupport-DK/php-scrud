@@ -17,7 +17,7 @@ use PDOException;
 class Database
 {
 
-    protected static $instance = null;
+    private static $instance = null;
 
     private
             $driver,
@@ -64,7 +64,7 @@ class Database
     public static function singleton($connection = array())
     {
         if (!isset(self::$instance)) {
-            self::$instance = new Database($connection = array());
+            self::$instance = new Database($connection);
         }
 
         return self::$instance;
