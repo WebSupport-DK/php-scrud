@@ -19,23 +19,22 @@ class Database
 
     private static $instance = null;
 
-    private
-            $driver,
-            $host,
-            $database,
-            $username,
-            $password;
+    private $driver;
+    private $host;
+    private $database;
+    private $username;
+    private $password;
+    private $charset;
 
-    public
-            $pdo,
-            $query,
-            $error = false,
-            $results,
-            $first,
-            $count = 0,
-            $records,
-            $perPage,
-            $pages;
+    public $pdo;
+    public $query;
+    public $error = false;
+    public $results;
+    public $first;
+    public $count = 0;
+    public $records;
+    public $perPage;
+    public $pages;
 
     public function __construct($connection = array())
     {
@@ -44,17 +43,17 @@ class Database
         $this->database = $connection['database'];
         $this->username     = $connection['username'];
         $this->password = $connection['password'];
+        $this->charset = $connection['charset'];
 
         try {
             $this->pdo = new PDO(
                 $this->driver . ':host=' . 
                 $this->host . ';dbname=' . 
-                $this->database, 
+                $this->database . ';charset=' .
+                $this->charset, 
                 $this->username, 
                 $this->password
             );
-
-        $this->pdo->exec('set names ' . $connection['charset']);
 
         } catch (PDOException $e) {
             die($e->getMessage());
@@ -173,7 +172,7 @@ class Database
         return false;
     }
 
-    public function select($select = array(), $table, $paging = array(), $where = array(), $options = array())
+    public function get($select = array(), $table, $paging = array(), $where = array(), $options = array())
     {
         if (empty($paging)) {
             return $this->action('SELECT ' . implode($select, ', '), $table, $where, $options);
@@ -186,10 +185,10 @@ class Database
 
     private function paging($table, $limit = array(), $where = array())
     {
-        $page           = isset($limit['start']) ? (int) $limit['start'] : 1;
+        $page = isset($limit['start']) ? (int) $limit['start'] : 1;
         $this->perPage = isset($limit['end']) && $limit['end'] <= $limit['max'] ? (int) $limit['end'] : 5;
 
-        $this->pages   = ($page > 1) ? ($page * $this->perPage ) - $this->perPage : 0;
+        $this->pages = ($page > 1) ? ($page * $this->perPage ) - $this->perPage : 0;
         $this->getRecords($table, $where);
         $this->records = (ceil($this->records[0] / $this->perPage));
     }
